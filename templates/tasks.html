@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Airdrop Tasks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .tasks-container {
+            max-width: 800px;
+        }
+        .progress-bar {
+            background: #e1e1e1;
+            border-radius: 10px;
+            height: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .task-item {
+            background: white;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-completed {
+            border-color: #4CAF50;
+            background: #f8fff8;
+        }
+        .task-info {
+            flex-grow: 1;
+        }
+        .task-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .task-points {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .task-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .status-completed {
+            background: #4CAF50;
+            color: white;
+        }
+        .status-pending {
+            background: #ff9800;
+            color: white;
+        }
+        .complete-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .complete-btn:hover {
+            background: #45a049;
+        }
+        .twitter-verification-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 10px;
+            border-left: 4px solid #1DA1F2;
+        }
+        .retweet-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+        .twitter-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .twitter-stat {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e1e1e1;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1DA1F2;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .api-status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .api-connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .api-simulated {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container tasks-container">
+        <div class="logo">✅</div>
+        <h1>Your Airdrop Tasks</h1>
+        <p class="subtitle">Complete tasks to earn more tokens!</p>
+        
+        <div class="progress-section">
+            <h3>Your Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText"></div>
+        </div>
+
+        <!-- Twitter API Status -->
+        <div id="twitterApiStatus" style="margin: 20px 0;"></div>
+        
+        <!-- Twitter Verification Section -->
+        <div class="twitter-verification-section">
+            <h3>🐦 Twitter Verification</h3>
+            <p style="color: #666; margin-bottom: 15px;">Verify your Twitter tasks to earn points</p>
+            
+            <div class="twitter-verify-form">
+                <div class="form-group">
+                    <label for="twitterHandleVerify">Your Twitter Handle *</label>
+                    <input type="text" id="twitterHandleVerify" placeholder="yourusername (without @)" style="margin-bottom: 10px;" required>
+                    <small style="color: #666;">Enter your Twitter username without @ symbol</small>
+                </div>
+
+                <!-- Twitter Stats -->
+                <div id="twitterStats" class="twitter-stats" style="display: none;">
+                    <div class="twitter-stat">
+                        <div class="stat-number" id="followerCount">0</div>
+                        <div class="stat-label">Followers</div>
+                    </div>
+                    <div class="twitter-stat">
+                        <div class="stat-number" id="verificationStatus">❌</div>
+                        <div class="stat-label">Following Us</div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px;">
+                    <button onclick="verifyTwitterFollow()" class="btn" style="background: #1DA1F2;">
+                        ✅ Verify Twitter Follow (+50 points)
+                    </button>
+                </div>
+
+                <!-- Retweet Section -->
+                <div class="retweet-section">
+                    <h4>🔁 Retweet Verification (+75 points)</h4>
+                    <div class="form-group">
+                        <label for="tweetUrl">Tweet URL *</label>
+                        <input type="text" id="tweetUrl" placeholder="https://twitter.com/username/status/123456789" style="margin-bottom: 10px;" required>
+                        <small style="color: #666;">Paste the URL of our pinned tweet that you retweeted</small>
+                    </div>
+                    <button onclick="verifyRetweet()" class="btn" style="background: #ffc107; color: black;">
+                        🔁 Verify Retweet
+                    </button>
+                </div>
+                
+                <div style="background: #e1f5fe; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h4>📋 Instructions:</h4>
+                    <ol style="text-align: left; margin: 10px 0; padding-left: 20px;">
+                        <li><strong>Follow our Twitter account</strong> - Click "Verify Twitter Follow"</li>
+                        <li><strong>Retweet our pinned post</strong> - Paste the tweet URL and click "Verify Retweet"</li>
+                        <li><strong>Make sure your Twitter account is public</strong> so we can verify</li>
+                        <li>Enter your Twitter handle <strong>without @ symbol</strong></li>
+                    </ol>
+                    <p style="text-align: left; margin: 10px 0 0 0; font-style: italic;">
+                        💡 <strong>Pro Tip:</strong> Complete both Twitter tasks to earn 125 points total!
+                    </p>
+                </div>
+            </div>
+            
+            <div id="twitterVerificationResult" style="margin-top: 15px;"></div>
+        </div>
+        
+        <div id="tasksList"></div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <button onclick="window.location.href='/'" class="btn" style="margin: 5px;">
+                🏠 Back to Home
+            </button>
+            <button onclick="window.location.href='/profile'" class="btn" style="margin: 5px; background: #6c757d;">
+                👤 Your Profile
+            </button>
+            <button onclick="checkTwitterStatus()" class="btn" style="margin: 5px; background: #1DA1F2;">
+                🔍 Check Twitter Status
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Get wallet address from URL parameter or localStorage
+        function getWalletAddress() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('wallet') || localStorage.getItem('walletAddress');
+        }
+
+        // Load tasks
+        async function loadTasks() {
+            const walletAddress = getWalletAddress();
+            if (!walletAddress) {
+                alert('No wallet address found. Please join the airdrop first.');
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/tasks/${walletAddress}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Error loading tasks: ' + data.error);
+                    return;
+                }
+
+                // Update progress
+                const progress = data.progress;
+                document.getElementById('progressFill').style.width = `${progress.percentage}%`;
+                document.getElementById('progressText').innerHTML = `
+                    ${progress.completed}/${progress.total} tasks completed • 
+                    ${progress.points}/${progress.max_points} points earned
+                `;
+
+                // Render tasks
+                const tasksList = document.getElementById('tasksList');
+                tasksList.innerHTML = '';
+
+                for (const [taskId, task] of Object.entries(data.tasks)) {
+                    const taskDesc = data.descriptions[taskId];
+                    const isCompleted = task.completed;
+                    
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `task-item ${isCompleted ? 'task-completed' : ''}`;
+                    
+                    taskElement.innerHTML = `
+                        <div class="task-info">
+                            <div class="task-name">${taskDesc.name}</div>
+                            <div class="task-points">${taskDesc.points} points</div>
+                        </div>
+                        <div class="task-status ${isCompleted ? 'status-completed' : 'status-pending'}">
+                            ${isCompleted ? '✅ Completed' : '⏳ Pending'}
+                        </div>
+                        ${!isCompleted && taskId !== 'follow_twitter' && taskId !== 'retweet' ? `
+                            <button class="complete-btn" onclick="completeTask('${taskId}')">
+                                Complete
+                            </button>
+                        ` : ''}
+                    `;
+                    
+                    tasksList.appendChild(taskElement);
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                alert('Error loading tasks. Please try again.');
+            }
+        }
+
+        // Complete a task
+        async function completeTask(taskName) {
+            const walletAddress = getWalletAddress();
+            
+            try {
+                const response = await fetch('/complete-task', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        wallet_address: walletAddress,
+                        task_name: taskName
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Task completed successfully!');
+                    loadTasks();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error completing task:', error);
+                alert('Error completing task');
+            }
+        }
+
+        // Verify Twitter follow
+        async function verifyTwitterFollow() {
+            const walletAddress = getWalletAddress();
+            const twitterHandle = document.getElementById('twitterHandleVerify').value.trim().replace('@', '');
+            
+            if (!twitterHandle) {
+                alert('Please enter your Twitter handle');
+                return;
+            }
+
+            const resultDiv = document.getElementById('twitterVerificationResult');
+            resultDiv.innerHTML = '<div style="color: #666;">🔄 Verifying Twitter follow...</div>';
+
+            try {
+                const response = await fetch('/verify-twitter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        wallet_address: walletAddress,
+                        twitter_handle: twitterHandle
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<div class="success">${result.message}</div>`;
+                    
+                    // Update Twitter stats if available
+                    if (result.follower_count) {
+                        document.getElementById('followerCount').textContent = result.follower_count.toLocaleString();
+                        document.getElementById('verificationStatus').textContent = '✅';
+                        document.getElementById('twitterStats').style.display = 'grid';
+                    }
+                    
+                    loadTasks();
+                } else {
+                    resultDiv.innerHTML = `<div class="error">${result.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Twitter verification error:', error);
+                resultDiv.innerHTML = '<div class="error">Twitter verification failed. Please try again.</div>';
+            }
+        }
+
+        // Verify retweet
+        async function verifyRetweet() {
+            const walletAddress = getWalletAddress();
+            const twitterHandle = document.getElementById('twitterHandleVerify').value.trim().replace('@', '');
+            const tweetUrl = document.getElementById('tweetUrl').value.trim();
+            
+            if (!twitterHandle) {
+                alert('Please enter your Twitter handle first');
+                return;
+            }
+            
+            if (!tweetUrl) {
+                alert('Please enter the tweet URL');
+                return;
+            }
+
+            const resultDiv = document.getElementById('twitterVerificationResult');
+            resultDiv.innerHTML = '<div style="color: #666;">🔄 Verifying retweet...</div>';
+
+            try {
+                const response = await fetch('/verify-retweet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        wallet_address: walletAddress,
+                        twitter_handle: twitterHandle,
+                        tweet_url: tweetUrl
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<div class="success">${result.message}</div>`;
+                    loadTasks();
+                } else {
+                    resultDiv.innerHTML = `<div class="error">${result.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Retweet verification error:', error);
+                resultDiv.innerHTML = '<div class="error">Retweet verification failed. Please try again.</div>';
+            }
+        }
+
+        // Check Twitter API status
+        async function checkTwitterStatus() {
+            try {
+                const response = await fetch('/twitter-status');
+                const status = await response.json();
+                
+                const statusDiv = document.getElementById('twitterApiStatus');
+                
+                if (status.api_ready) {
+                    statusDiv.innerHTML = `
+                        <div class="api-status api-connected">
+                            ✅ Twitter API Connected - Real verification enabled
+                        </div>
+                        <div style="text-align: center; color: #666; margin-top: 10px;">
+                            Project: @${status.project_username} • API: Working
+                        </div>
+                    `;
+                } else if (status.twitter_configured) {
+                    statusDiv.innerHTML = `
+                        <div class="api-status api-simulated">
+                            ⚠️ Twitter API Configured but connection failed
+                        </div>
+                        <div style="text-align: center; color: #666; margin-top: 10px;">
+                            ${status.api_test_message || 'Check your API credentials'}
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="api-status api-simulated">
+                            🐦 Simulation Mode - Using simulated Twitter verification
+                        </div>
+                        <div style="text-align: center; color: #666; margin-top: 10px;">
+                            Add Twitter API credentials for real verification
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error checking Twitter status:', error);
+            }
+        }
+
+        // Auto-check Twitter status when page loads
+        async function initializePage() {
+            await checkTwitterStatus();
+            await loadTasks();
+        }
+
+        // Load tasks and check status when page loads
+        window.onload = initializePage;
+
+        // Add real-time validation for Twitter handle
+        document.getElementById('twitterHandleVerify').addEventListener('input', function(e) {
+            const handle = e.target.value.trim().replace('@', '');
+            if (handle.length > 0) {
+                // Hide stats until new verification
+                document.getElementById('twitterStats').style.display = 'none';
+            }
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'r':
+                        e.preventDefault();
+                        loadTasks();
+                        break;
+                    case 't':
+                        e.preventDefault();
+                        checkTwitterStatus();
+                        break;
+                }
+            }
+        });
+
+        // Show keyboard shortcuts info
+        console.log('📋 Keyboard shortcuts:');
+        console.log('Ctrl+R - Refresh tasks');
+        console.log('Ctrl+T - Check Twitter status');
+    </script>
+</body>
+</html>

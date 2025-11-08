@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile - CryptoAirdrop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .referral-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .referral-link {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px dashed #667eea;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .copy-btn:hover {
+            background: #5a6fd8;
+        }
+        .referral-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e1e1e1;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">👤</div>
+        <h1>Your Profile</h1>
+        <p class="subtitle">Manage your account and referral program</p>
+        
+        <div class="referral-section">
+            <h3>🎯 Your Referral Program</h3>
+            
+            <div class="referral-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalPoints">0</div>
+                    <div class="stat-label">Total Points</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="referralCount">0</div>
+                    <div class="stat-label">People Referred</div>
+                </div>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <label><strong>Your Referral Code:</strong></label>
+                <div class="referral-link">
+                    <code id="referralCode">Loading...</code>
+                    <button class="copy-btn" onclick="copyReferralCode()">Copy</button>
+                </div>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <label><strong>Your Referral Link:</strong></label>
+                <div class="referral-link">
+                    <code id="referralLink">Loading...</code>
+                    <button class="copy-btn" onclick="copyReferralLink()">Copy Link</button>
+                </div>
+            </div>
+            
+            <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <h4>💡 How it works:</h4>
+                <ul style="text-align: left; margin: 10px 0; padding-left: 20px;">
+                    <li>Share your referral link with friends</li>
+                    <li>Earn <strong>50 points</strong> for each friend who joins</li>
+                    <li>Your friends get <strong>50 bonus points</strong> too!</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <button onclick="window.location.href='/tasks'" class="btn" style="margin: 5px;">
+                📋 View Tasks
+            </button>
+            <button onclick="window.location.href='/'" class="btn" style="margin: 5px; background: #6c757d;">
+                🏠 Home
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // For now, show basic profile info
+        document.getElementById('referralCode').textContent = 'Join to get your code';
+        document.getElementById('referralLink').textContent = window.location.origin + '/';
+        
+        function copyReferralCode() {
+            const code = document.getElementById('referralCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Referral code copied to clipboard!');
+            });
+        }
+
+        function copyReferralLink() {
+            const link = document.getElementById('referralLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Referral link copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
